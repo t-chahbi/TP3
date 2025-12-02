@@ -144,3 +144,12 @@ input[type="number"] {
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     transition: transform 0.3s ease; /* Pour une future animation JS */
 }
+
+/* Ajoute ceci à la fin de style.css (étape 3) */
+
+.disk.selected {
+    border: 2px solid white;     /* Bordure blanche */
+    background-color: #e74c3c !important; /* On force une couleur rouge vif pour la sélection */
+    transform: translateY(-10px); /* L'anneau "saute" un peu vers le haut */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
