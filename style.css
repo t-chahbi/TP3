@@ -1,0 +1,146 @@
+/* style.css */
+
+:root {
+    --bg-color: #2c3e50;
+    --text-color: #ecf0f1;
+    --tower-base-color: #95a5a6;
+    --pole-color: #7f8c8d;
+    --btn-color: #27ae60;
+    --tower-height: 250px;
+    --tower-width: 200px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-container {
+    text-align: center;
+    width: 100%;
+    max-width: 900px;
+}
+
+/* --- Contrôles (Haut de page) --- */
+.controls {
+    margin-bottom: 40px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.controls h1 {
+    margin-bottom: 20px;
+    font-weight: 300;
+    letter-spacing: 2px;
+}
+
+.input-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+input[type="number"] {
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    width: 60px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.btn {
+    padding: 8px 20px;
+    background-color: var(--btn-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform 0.1s, background-color 0.2s;
+}
+
+.btn:hover {
+    background-color: #2ecc71;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+/* --- Zone de Jeu --- */
+.game-area {
+    display: flex;
+    justify-content: space-around; /* Espacement égal entre les tours */
+    align-items: flex-end;
+    padding: 20px;
+}
+
+/* --- Structure d'une Tour --- */
+.tower-container {
+    position: relative; /* Référence pour le positionnement absolu de la tige */
+    width: var(--tower-width);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer; /* Indique que la zone est cliquable */
+    transition: opacity 0.2s;
+}
+
+.tower-container:hover .base {
+    background-color: #bdc3c7; /* Petit effet au survol */
+}
+
+/* La tige verticale */
+.pole {
+    position: absolute;
+    bottom: 20px; /* Commence juste au-dessus du socle */
+    width: 10px;
+    height: var(--tower-height);
+    background-color: var(--pole-color);
+    border-radius: 5px 5px 0 0;
+    z-index: 0; /* Derrière les disques */
+}
+
+/* Conteneur des disques */
+.disks-wrapper {
+    height: var(--tower-height);
+    width: 100%;
+    display: flex;
+    flex-direction: column-reverse; /* Empile les disques du bas vers le haut ! */
+    align-items: center; /* Centre les disques horizontalement */
+    justify-content: flex-start;
+    z-index: 1; /* Devant la tige */
+    margin-bottom: 0; /* Collé au socle */
+}
+
+/* Le socle (base) */
+.base {
+    width: 100%;
+    height: 20px;
+    background-color: var(--tower-base-color);
+    border-radius: 5px;
+    z-index: 2;
+}
+
+/* --- Les Anneaux (Style générique) --- */
+.disk {
+    height: 25px; /* Hauteur fixe pour chaque disque */
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease; /* Pour une future animation JS */
+}

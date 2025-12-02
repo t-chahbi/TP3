@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu des Tours de Hanoï</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="main-container">
+        <!-- En-tête avec les contrôles -->
+        <header class="controls">
+            <h1>Tours de Hanoï</h1>
+            <div class="input-group">
+                <label for="disk-count">Nombre d'anneaux :</label>
+                <input type="number" id="disk-count" min="3" max="8" value="3">
+                <button id="start-btn" class="btn">Démarrer</button>
+            </div>
+        </header>
+
+        <!-- Zone de jeu -->
+        <div class="game-area">
+            
+            <!-- Tour 1 (Départ) -->
+            <div class="tower-container" id="tower-1">
+                <div class="pole"></div> <!-- La tige verticale -->
+                <div class="disks-wrapper">
+                    <!-- Exemples d'anneaux pour la démo visuelle -->
+                    <div class="disk" style="width: 120px; background-color: #e74c3c;"></div>
+                    <div class="disk" style="width: 100px; background-color: #3498db;"></div>
+                    <div class="disk" style="width: 80px; background-color: #f1c40f;"></div>
+                </div>
+                <div class="base"></div> <!-- Le socle -->
+            </div>
+
+            <!-- Tour 2 (Intermédiaire) -->
+            <div class="tower-container" id="tower-2">
+                <div class="pole"></div>
+                <div class="disks-wrapper">
+                    <!-- Vide au départ -->
+                </div>
+                <div class="base"></div>
+            </div>
+
+            <!-- Tour 3 (Arrivée) -->
+            <div class="tower-container" id="tower-3">
+                <div class="pole"></div>
+                <div class="disks-wrapper">
+                    <!-- Vide au départ -->
+                </div>
+                <div class="base"></div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
