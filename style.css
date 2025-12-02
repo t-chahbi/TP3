@@ -1,118 +1,173 @@
-/* style.css */
-
 :root {
-    --bg-color: #2c3e50;
-    --text-color: #ecf0f1;
-    --tower-base-color: #95a5a6;
-    --pole-color: #7f8c8d;
-    --btn-color: #27ae60;
+    /* Palette de couleurs */
+    --bg-gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); /* Deep space vibe */
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --text-color: #ffffff;
+    
+    --pole-color: #dfe6e9;
+    --base-color: #636e72;
+    --base-shadow: rgba(0, 0, 0, 0.4);
+    
+    --tower-width: 220px;
     --tower-height: 250px;
-    --tower-width: 200px;
 }
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    user-select: none; /* Empêche la sélection de texte accidentelle */
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-color);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-gradient);
+    background-size: 200% 200%;
+    animation: gradientMove 15s ease infinite; /* Animation douce du fond */
     color: var(--text-color);
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden; /* Évite les scrollbars pendant les animations */
+}
+
+/* Animation du fond */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .main-container {
-    text-align: center;
-    width: 100%;
-    max-width: 900px;
+    width: 95%;
+    max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
-/* --- Contrôles (Haut de page) --- */
+/* --- Contrôles (Glassmorphism) --- */
 .controls {
-    margin-bottom: 40px;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    border-radius: 10px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    padding: 25px 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    max-width: 600px;
 }
 
 .controls h1 {
-    margin-bottom: 20px;
-    font-weight: 300;
-    letter-spacing: 2px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 1.8rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .input-group {
     display: flex;
-    justify-content: center;
-    align-items: center;
     gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+label {
+    font-size: 1.1rem;
+    font-weight: 500;
 }
 
 input[type="number"] {
-    padding: 8px;
-    border-radius: 5px;
+    padding: 10px;
+    border-radius: 8px;
     border: none;
-    width: 60px;
+    width: 70px;
     text-align: center;
-    font-size: 1rem;
+    font-size: 1.1rem;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    font-weight: bold;
+    outline: none;
 }
 
 .btn {
-    padding: 8px 20px;
-    background-color: var(--btn-color);
+    padding: 10px 30px;
+    background: linear-gradient(45deg, #11998e, #38ef7d);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 50px;
     cursor: pointer;
     font-size: 1rem;
-    transition: transform 0.1s, background-color 0.2s;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
 }
 
 .btn:hover {
-    background-color: #2ecc71;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(56, 239, 125, 0.4);
 }
 
 .btn:active {
-    transform: scale(0.98);
+    transform: scale(0.95);
 }
 
 /* --- Zone de Jeu --- */
 .game-area {
     display: flex;
-    justify-content: space-around; /* Espacement égal entre les tours */
+    justify-content: space-between;
     align-items: flex-end;
-    padding: 20px;
+    width: 100%;
+    padding: 20px 0;
+    perspective: 1000px; /* Ajoute de la profondeur */
 }
 
 /* --- Structure d'une Tour --- */
 .tower-container {
-    position: relative; /* Référence pour le positionnement absolu de la tige */
+    position: relative;
     width: var(--tower-width);
+    height: 300px; /* Hauteur totale incluant la zone de clic */
     display: flex;
     flex-direction: column;
     align-items: center;
-    cursor: pointer; /* Indique que la zone est cliquable */
-    transition: opacity 0.2s;
+    justify-content: flex-end;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border-radius: 10px;
+    padding-bottom: 10px;
 }
 
-.tower-container:hover .base {
-    background-color: #bdc3c7; /* Petit effet au survol */
+/* Effet Hover sur la Tour */
+.tower-container:hover {
+    background: rgba(255, 255, 255, 0.05); /* Légère surbrillance */
+}
+
+.tower-container:hover .pole {
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(255,255,255,0.5);
 }
 
 /* La tige verticale */
 .pole {
     position: absolute;
-    bottom: 20px; /* Commence juste au-dessus du socle */
-    width: 10px;
+    bottom: 25px; /* Épaisseur du socle */
+    width: 12px;
     height: var(--tower-height);
-    background-color: var(--pole-color);
-    border-radius: 5px 5px 0 0;
-    z-index: 0; /* Derrière les disques */
+    background: linear-gradient(90deg, #b2bec3, #dfe6e9, #636e72);
+    border-radius: 10px 10px 0 0;
+    z-index: 0;
+    transition: background 0.3s, box-shadow 0.3s;
 }
 
 /* Conteneur des disques */
@@ -120,36 +175,100 @@ input[type="number"] {
     height: var(--tower-height);
     width: 100%;
     display: flex;
-    flex-direction: column-reverse; /* Empile les disques du bas vers le haut ! */
-    align-items: center; /* Centre les disques horizontalement */
+    flex-direction: column-reverse;
+    align-items: center;
     justify-content: flex-start;
-    z-index: 1; /* Devant la tige */
-    margin-bottom: 0; /* Collé au socle */
+    z-index: 1;
+    margin-bottom: 5px; /* Petit espace au dessus du socle */
 }
 
-/* Le socle (base) */
+/* Le socle */
 .base {
     width: 100%;
-    height: 20px;
-    background-color: var(--tower-base-color);
-    border-radius: 5px;
-    z-index: 2;
-}
-
-/* --- Les Anneaux (Style générique) --- */
-.disk {
-    height: 25px; /* Hauteur fixe pour chaque disque */
+    height: 25px;
+    background: linear-gradient(to bottom, #636e72, #2d3436);
     border-radius: 10px;
-    border: 1px solid rgba(0,0,0,0.2);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    transition: transform 0.3s ease; /* Pour une future animation JS */
+    z-index: 2;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    border-top: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Ajoute ceci à la fin de style.css (étape 3) */
+/* --- Les Anneaux (Style Amélioré) --- */
+.disk {
+    height: 30px;
+    border-radius: 15px; /* Forme de pilule */
+    /* On garde la couleur de fond JS, mais on ajoute un dégradé par dessus */
+    background-image: linear-gradient(
+        to bottom, 
+        rgba(255,255,255,0.3) 0%, 
+        rgba(255,255,255,0) 20%, 
+        rgba(0,0,0,0.1) 80%, 
+        rgba(0,0,0,0.3) 100%
+    );
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Effet rebond */
+    position: relative;
+}
 
+/* Petit reflet brillant sur le dessus de l'anneau */
+.disk::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 10%;
+    width: 80%;
+    height: 3px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 2px;
+}
+
+/* État Sélectionné */
 .disk.selected {
-    border: 2px solid white;     /* Bordure blanche */
-    background-color: #e74c3c !important; /* On force une couleur rouge vif pour la sélection */
-    transform: translateY(-10px); /* L'anneau "saute" un peu vers le haut */
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    transform: translateY(-20px) scale(1.05); /* Monte plus haut et grossit un peu */
+    box-shadow: 0 15px 25px rgba(0,0,0,0.4);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    z-index: 10; /* Passe devant tout le reste */
+    filter: brightness(1.2); /* Devient plus lumineux */
+}
+
+/* --- Responsive Design --- */
+
+@media (max-width: 768px) {
+    :root {
+        --tower-width: 30%; /* Pourcentage au lieu de fixe */
+        --tower-height: 180px;
+    }
+    
+    .controls {
+        padding: 15px;
+    }
+    
+    .controls h1 {
+        font-size: 1.4rem;
+    }
+
+    .base {
+        height: 15px;
+        border-radius: 5px;
+    }
+
+    .disk {
+        height: 22px;
+    }
+    
+    /* Ajustement des largeurs d'anneaux pour mobile */
+    /* Note : Le JS calcule en pixels, mais comme le conteneur rétrécit, 
+       Flexbox/CSS gérera le débordement si nécessaire, 
+       mais idéalement les anneaux doivent rester plus petits que la tour. */
+}
+
+@media (max-width: 480px) {
+    .btn {
+        width: 100%; /* Bouton plein écran sur mobile */
+    }
+    
+    .game-area {
+        align-items: flex-end;
+    }
 }
