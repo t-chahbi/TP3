@@ -1,196 +1,241 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Sélecteurs ---
+    // --- Éléments du DOM ---
     const startBtn = document.getElementById('start-btn');
+    const resetBtn = document.getElementById('reset-btn');
     const demoBtn = document.getElementById('demo-btn');
+    const themeBtn = document.getElementById('theme-btn');
     const diskCountInput = document.getElementById('disk-count');
     const towerContainers = document.querySelectorAll('.tower-container');
-    const inputsArea = document.querySelector('.input-group');
+    const controlsArea = document.querySelector('.controls'); // Pour désactiver les inputs
+    const victoryMsg = document.getElementById('victory-message');
+    
+    // Stats DOM
+    const moveCountDisplay = document.getElementById('move-count');
+    const minMovesDisplay = document.getElementById('min-moves');
 
     // --- Variables d'état ---
     let selectedDisk = null;
     let sourceTower = null;
-    let isDemoRunning = false; // Pour savoir si la démo est en cours
-    let demoStopper = false;   // Drapeau d'urgence pour arrêter la démo
+    let isDemoRunning = false;
+    let demoStopper = false;
+    let moveCount = 0;
+    let totalDisks = 3;
 
-    // --- Écouteurs ---
+    // --- Initialisation ---
+    // Charger le thème depuis le localStorage
+    if(localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light-mode');
+        themeBtn.innerHTML = '<i class="fas fa-moon"></i>';
+    }
+
+    // --- Écouteurs d'événements ---
     startBtn.addEventListener('click', () => initGame(false));
+    resetBtn.addEventListener('click', () => initGame(false));
     demoBtn.addEventListener('click', () => initGame(true));
+    themeBtn.addEventListener('click', toggleTheme);
 
     towerContainers.forEach(tower => {
         tower.addEventListener('click', handleTowerClick);
     });
 
     /**
-     * Initialise le jeu (Mode Joueur ou Mode Démo)
+     * Basculer entre Mode Sombre et Clair
+     */
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const isLight = document.body.classList.contains('light-mode');
+        themeBtn.innerHTML = isLight ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+
+    /**
+     * Initialiser ou Réinitialiser le jeu
      */
     async function initGame(isDemoMode) {
-        // Arrêt d'urgence si une démo précédente tournait
+        // Arrêt démo si en cours
         if (isDemoRunning) {
-            demoStopper = true; 
-            // On attend un petit peu que la boucle async s'arrête
-            await sleep(100); 
+            demoStopper = true;
+            await sleep(100);
         }
 
-        // Réinitialisation variables
+        // Reset Variables
         demoStopper = false;
         isDemoRunning = isDemoMode;
         selectedDisk = null;
         sourceTower = null;
-        
-        // UI Reset
-        document.querySelectorAll('.disks-wrapper').forEach(w => w.innerHTML = '');
-        document.querySelectorAll('.disk').forEach(d => d.classList.remove('selected'));
-        
-        // Validation Input
-        let count = parseInt(diskCountInput.value);
-        if (count < 3) count = 3;
-        if (count > 8) count = 8;
-        diskCountInput.value = count;
+        moveCount = 0;
+        updateStats();
+        victoryMsg.classList.add('hidden');
 
-        // Création des anneaux sur la Tour 1
+        // Nettoyage Plateau
+        document.querySelectorAll('.disks-wrapper').forEach(w => w.innerHTML = '');
+
+        // Validation et Calcul Stats
+        totalDisks = parseInt(diskCountInput.value);
+        if (totalDisks < 3) totalDisks = 3;
+        if (totalDisks > 8) totalDisks = 8;
+        diskCountInput.value = totalDisks;
+
+        // Affichage Score Minimal (2^n - 1)
+        minMovesDisplay.textContent = Math.pow(2, totalDisks) - 1;
+
+        // Création des anneaux
         const startWrapper = document.getElementById('tower-1').querySelector('.disks-wrapper');
-        for (let i = count; i >= 1; i--) {
-            createDisk(i, count, startWrapper);
+        for (let i = totalDisks; i >= 1; i--) {
+            createDisk(i, totalDisks, startWrapper);
         }
 
-        // Lancement de la démo si demandé
+        // Mode Démo
         if (isDemoMode) {
             disableControls(true);
-            const tower1 = document.getElementById('tower-1').querySelector('.disks-wrapper');
-            const tower2 = document.getElementById('tower-2').querySelector('.disks-wrapper');
-            const tower3 = document.getElementById('tower-3').querySelector('.disks-wrapper');
+            const t1 = document.getElementById('tower-1').querySelector('.disks-wrapper');
+            const t2 = document.getElementById('tower-2').querySelector('.disks-wrapper');
+            const t3 = document.getElementById('tower-3').querySelector('.disks-wrapper');
             
-            // Appel de l'algorithme récursif
-            // Algorithme standard : De Source vers Cible (3) en utilisant Auxiliaire (2)
-            await solveHanoi(count, tower1, tower3, tower2);
+            await solveHanoi(totalDisks, t1, t3, t2);
             
-            if (!demoStopper) {
-                alert("Démonstration terminée !");
-            }
+            if (!demoStopper) alert("Démonstration terminée !");
             disableControls(false);
             isDemoRunning = false;
         }
     }
 
     /**
-     * Algorithme Récursif des Tours de Hanoï avec Animation
-     * n : nombre d'anneaux
-     * source, target, aux : les éléments DOM (.disks-wrapper)
+     * Mise à jour de l'affichage des coups
      */
-    async function solveHanoi(n, source, target, aux) {
-        // Si l'utilisateur a cliqué sur "Démarrer" pendant la démo, on arrête tout
-        if (demoStopper) return;
-
-        if (n === 0) {
-            return;
-        }
-
-        // 1. Déplacer n-1 anneaux de Source vers Auxiliaire
-        await solveHanoi(n - 1, source, aux, target);
-
-        // Si interruption, on ne fait pas le mouvement
-        if (demoStopper) return;
-
-        // 2. Déplacer le n-ième anneau de Source vers Cible (Action visuelle)
-        await moveDiskVisual(source, target);
-
-        // 3. Déplacer n-1 anneaux de Auxiliaire vers Cible
-        await solveHanoi(n - 1, aux, target, source);
+    function updateStats() {
+        moveCountDisplay.textContent = moveCount;
     }
 
     /**
-     * Effectue le déplacement visuel avec délai
+     * Création visuelle d'un anneau
      */
-    async function moveDiskVisual(fromWrapper, toWrapper) {
-        // Sélection visuelle (petit effet UX)
-        const disk = fromWrapper.lastElementChild;
-        if (!disk) return;
-        
-        disk.classList.add('selected');
-        
-        // Délai avant mouvement (temps pour voir la sélection)
-        await sleep(200); 
-        
-        // Mouvement effectif
-        disk.classList.remove('selected');
-        toWrapper.appendChild(disk);
-        
-        // Délai après mouvement (temps pour voir le résultat)
-        await sleep(300);
-    }
-
-    /**
-     * Utilitaire : Pause (Promesse)
-     */
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    /**
-     * Gestion des contrôles UI
-     */
-    function disableControls(disable) {
-        if (disable) {
-            inputsArea.classList.add('disabled');
-        } else {
-            inputsArea.classList.remove('disabled');
-        }
-    }
-
-    // --- (Le reste des fonctions de création et de jeu manuel reste identique) ---
-
-    function createDisk(sizeIndex, totalDisks, container) {
+    function createDisk(sizeIndex, total, container) {
         const disk = document.createElement('div');
         disk.classList.add('disk');
-        const maxWidth = 160; 
-        const calculatedWidth = (sizeIndex / totalDisks) * maxWidth + 20; 
-        disk.style.width = `${calculatedWidth}px`;
-        const hue = (sizeIndex * 40) % 360; 
+        
+        // Largeur proportionnelle
+        const maxWidth = 160;
+        const width = (sizeIndex / total) * maxWidth + 20;
+        disk.style.width = `${width}px`;
+        
+        // Couleur
+        const hue = (sizeIndex * 40) % 360;
         disk.style.backgroundColor = `hsl(${hue}, 70%, 55%)`;
+        
         disk.dataset.size = sizeIndex;
         container.appendChild(disk);
     }
 
+    /**
+     * Gestion du clic sur une tour (Jeu Manuel)
+     */
     function handleTowerClick(e) {
-        if (isDemoRunning) return; // Interdire l'interaction pendant la démo
+        if (isDemoRunning) return;
 
         const currentWrapper = e.currentTarget.querySelector('.disks-wrapper');
-        
+
+        // Sélection
         if (!selectedDisk) {
             if (currentWrapper.childElementCount === 0) return;
             selectedDisk = currentWrapper.lastElementChild;
             sourceTower = currentWrapper;
             selectedDisk.classList.add('selected');
-        } else {
+        } 
+        // Déplacement
+        else {
+            // Annuler si même tour
             if (currentWrapper === sourceTower) {
                 selectedDisk.classList.remove('selected');
                 selectedDisk = null;
                 sourceTower = null;
                 return;
             }
+
+            // Vérifier validité
             if (isValidMove(selectedDisk, currentWrapper)) {
-                selectedDisk.classList.remove('selected');
-                currentWrapper.appendChild(selectedDisk);
+                // Mouvement Valide
+                performMove(selectedDisk, currentWrapper);
                 selectedDisk = null;
                 sourceTower = null;
-                checkWin();
             } else {
                 alert("Mouvement impossible !");
             }
         }
     }
 
-    function isValidMove(diskToMove, targetWrapper) {
+    /**
+     * Exécute le déplacement et incrémente le compteur
+     */
+    function performMove(disk, targetWrapper) {
+        disk.classList.remove('selected');
+        // Astuce : pour relancer l'animation CSS, on peut cloner ou forcer un reflow.
+        // Ici, le simple appendChild déclenche l'animation 'diskLand' définie dans le CSS.
+        targetWrapper.appendChild(disk);
+        
+        moveCount++;
+        updateStats();
+        checkWin();
+    }
+
+    function isValidMove(disk, targetWrapper) {
         if (targetWrapper.childElementCount === 0) return true;
-        const topDiskAtTarget = targetWrapper.lastElementChild;
-        return parseInt(diskToMove.dataset.size) < parseInt(topDiskAtTarget.dataset.size);
+        const topDisk = targetWrapper.lastElementChild;
+        return parseInt(disk.dataset.size) < parseInt(topDisk.dataset.size);
     }
 
     function checkWin() {
         const tower3 = document.getElementById('tower-3').querySelector('.disks-wrapper');
-        const totalDisks = parseInt(diskCountInput.value);
         if (tower3.childElementCount === totalDisks) {
-            setTimeout(() => alert("Bravo ! Vous avez gagné !"), 100);
+            victoryMsg.classList.remove('hidden');
         }
+    }
+
+    /**
+     * Utilitaires Démo / UI
+     */
+    function disableControls(disable) {
+        const btns = controlsArea.querySelectorAll('button, input');
+        btns.forEach(b => {
+            if(b.id !== 'reset-btn') { // On laisse Reset actif pour pouvoir stopper la démo
+                b.disabled = disable;
+                if(disable) b.classList.add('disabled');
+                else b.classList.remove('disabled');
+            }
+        });
+    }
+
+    function sleep(ms) {
+        return new Promise(r => setTimeout(r, ms));
+    }
+
+    // --- Logique Récursive Démo (mise à jour pour utiliser moveCount) ---
+    async function solveHanoi(n, source, target, aux) {
+        if (demoStopper) return;
+        if (n === 0) return;
+
+        await solveHanoi(n - 1, source, aux, target);
+        if (demoStopper) return;
+
+        await moveDiskVisual(source, target);
+        
+        await solveHanoi(n - 1, aux, target, source);
+    }
+
+    async function moveDiskVisual(from, to) {
+        const disk = from.lastElementChild;
+        if (!disk) return;
+
+        disk.classList.add('selected');
+        await sleep(200);
+        
+        disk.classList.remove('selected');
+        to.appendChild(disk);
+        
+        // Mise à jour compteur en démo aussi
+        moveCount++;
+        updateStats();
+        
+        await sleep(300);
     }
 });

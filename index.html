@@ -5,53 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jeu des Tours de Hanoï</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Ajout d'une icône pour le thème -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
+    <!-- Bouton Thème Flottant -->
+    <button id="theme-btn" class="theme-toggle" aria-label="Changer le thème">
+        <i class="fas fa-sun"></i>
+    </button>
+
     <div class="main-container">
-        <!-- En-tête avec les contrôles -->
+        
+        <!-- En-tête avec les contrôles et stats -->
         <header class="controls">
             <h1>Tours de Hanoï</h1>
-                <!-- Dans le header .controls -->
-                <div class="input-group">
-                    <label for="disk-count">Nombre d'anneaux :</label>
-                    <input type="number" id="disk-count" min="3" max="8" value="3">
-                    <button id="start-btn" class="btn">Démarrer</button>
-                    <!-- Nouveau bouton -->
-                    <button id="demo-btn" class="btn btn-demo">Démo Auto</button>
+            
+            <div class="stats-container">
+                <div class="stat-box">
+                    <span class="stat-label">Coups</span>
+                    <span class="stat-value" id="move-count">0</span>
                 </div>
+                <div class="stat-box">
+                    <span class="stat-label">Objectif</span>
+                    <span class="stat-value" id="min-moves">7</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="disk-count">Anneaux :</label>
+                <input type="number" id="disk-count" min="3" max="8" value="3">
+            </div>
+
+            <div class="button-group">
+                <button id="start-btn" class="btn btn-primary">Démarrer</button>
+                <button id="reset-btn" class="btn btn-warning">Reset</button>
+                <button id="demo-btn" class="btn btn-demo">Démo Auto</button>
+            </div>
+            
+            <div id="victory-message" class="victory-msg hidden">
+                🎉 Bravo ! Vous avez gagné ! 🎉
+            </div>
         </header>
 
         <!-- Zone de jeu -->
         <div class="game-area">
             
-            <!-- Tour 1 (Départ) -->
+            <!-- Tour 1 -->
             <div class="tower-container" id="tower-1">
-                <div class="pole"></div> <!-- La tige verticale -->
-                <div class="disks-wrapper">
-                    <!-- Exemples d'anneaux pour la démo visuelle -->
-                    <div class="disk" style="width: 120px; background-color: #e74c3c;"></div>
-                    <div class="disk" style="width: 100px; background-color: #3498db;"></div>
-                    <div class="disk" style="width: 80px; background-color: #f1c40f;"></div>
-                </div>
-                <div class="base"></div> <!-- Le socle -->
-            </div>
-
-            <!-- Tour 2 (Intermédiaire) -->
-            <div class="tower-container" id="tower-2">
                 <div class="pole"></div>
-                <div class="disks-wrapper">
-                    <!-- Vide au départ -->
-                </div>
+                <div class="disks-wrapper"></div>
                 <div class="base"></div>
             </div>
 
-            <!-- Tour 3 (Arrivée) -->
+            <!-- Tour 2 -->
+            <div class="tower-container" id="tower-2">
+                <div class="pole"></div>
+                <div class="disks-wrapper"></div>
+                <div class="base"></div>
+            </div>
+
+            <!-- Tour 3 -->
             <div class="tower-container" id="tower-3">
                 <div class="pole"></div>
-                <div class="disks-wrapper">
-                    <!-- Vide au départ -->
-                </div>
+                <div class="disks-wrapper"></div>
                 <div class="base"></div>
             </div>
 

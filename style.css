@@ -1,39 +1,67 @@
 :root {
-    /* Palette de couleurs */
-    --bg-gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); /* Deep space vibe */
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
-    --text-color: #ffffff;
+    /* --- MODE SOMBRE (Vraiment sombre et bleuté) --- */
+    /* Dégradé allant du noir bleuté profond au bleu nuit */
+    --bg-gradient: linear-gradient(135deg, #02050e 0%, #0f1c3a 50%, #1e3c72 100%);
     
-    --pole-color: #dfe6e9;
-    --base-color: #636e72;
-    --base-shadow: rgba(0, 0, 0, 0.4);
+    /* Verre fumé sombre pour les contrôles */
+    --glass-bg: rgba(10, 20, 40, 0.6); 
+    --glass-border: rgba(100, 149, 237, 0.15); /* Bordure bleu acier subtile */
+    
+    --text-color: #e6f1ff; /* Blanc bleuté pour le texte */
+    --input-bg: rgba(255, 255, 255, 0.1);
+    
+    /* Tige et socle version "Métal sombre" */
+    --pole-color: #4a69bd; 
+    --base-color: linear-gradient(to bottom, #34495e, #1e272e);
+    --base-shadow: rgba(0, 0, 0, 0.6);
+    
+    --tower-hover: rgba(255, 255, 255, 0.03);
     
     --tower-width: 220px;
     --tower-height: 250px;
+}
+
+/* --- MODE CLAIR (Lumineux et épuré) --- */
+body.light-mode {
+    /* Dégradé blanc vers bleu ciel très pâle */
+    --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f0f8ff 50%, #dceeff 100%);
+    
+    /* Verre givré blanc lumineux */
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.8);
+    
+    --text-color: #1e3799; /* Bleu roi foncé pour un bon contraste */
+    --input-bg: #ffffff;
+    
+    /* Tige et socle version "Aluminium brossé" */
+    --pole-color: #bdc3c7;
+    --base-color: linear-gradient(to bottom, #ecf0f1, #bdc3c7);
+    --base-shadow: rgba(149, 165, 166, 0.4);
+    
+    --tower-hover: rgba(30, 55, 153, 0.05);
 }
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    user-select: none; /* Empêche la sélection de texte accidentelle */
+    user-select: none;
+    transition: background-color 0.3s, color 0.3s; /* Transition douce pour le thème */
 }
 
 body {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background: var(--bg-gradient);
     background-size: 200% 200%;
-    animation: gradientMove 15s ease infinite; /* Animation douce du fond */
+    animation: gradientMove 15s ease infinite;
     color: var(--text-color);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* Évite les scrollbars pendant les animations */
+    overflow: hidden;
 }
 
-/* Animation du fond */
 @keyframes gradientMove {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
@@ -49,78 +77,119 @@ body {
     gap: 20px;
 }
 
-/* --- Contrôles (Glassmorphism) --- */
+/* --- Bouton Thème --- */
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-color);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s;
+    z-index: 100;
+}
+.theme-toggle:hover { transform: scale(1.1); }
+
+/* --- Contrôles & Stats --- */
 .controls {
     background: var(--glass-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
-    padding: 25px 40px;
+    padding: 20px 40px;
     border-radius: 20px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 15px;
     width: 100%;
-    max-width: 600px;
+    max-width: 700px;
 }
 
-.controls h1 {
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    font-size: 1.8rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-.input-group {
+.stats-container {
     display: flex;
-    gap: 15px;
+    gap: 30px;
+    margin-bottom: 10px;
+}
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.input-group, .button-group {
+    display: flex;
+    gap: 10px;
     align-items: center;
     flex-wrap: wrap;
     justify-content: center;
 }
 
-label {
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
 input[type="number"] {
-    padding: 10px;
+    padding: 8px;
     border-radius: 8px;
-    border: none;
-    width: 70px;
+    border: 1px solid var(--glass-border);
+    width: 60px;
     text-align: center;
     font-size: 1.1rem;
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
-    font-weight: bold;
-    outline: none;
+    background: var(--input-bg);
+    color: var(--text-color); /* Le texte s'adapte au thème */
+    border: 1px solid var(--glass-border);
 }
 
+/* --- Boutons --- */
 .btn {
-    padding: 10px 30px;
-    background: linear-gradient(45deg, #11998e, #38ef7d);
+    padding: 10px 20px;
     color: white;
     border: none;
     border-radius: 50px;
     cursor: pointer;
-    font-size: 1rem;
     font-weight: bold;
     text-transform: uppercase;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
 }
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: scale(0.95); }
 
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(56, 239, 125, 0.4);
+.btn-primary { background: linear-gradient(45deg, #11998e, #38ef7d); }
+.btn-warning { background: linear-gradient(45deg, #f0932b, #eb4d4b); }
+.btn-demo { background: linear-gradient(45deg, #3498db, #8e44ad); }
+
+.disabled { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
+
+/* --- Message Victoire --- */
+.victory-msg {
+    font-size: 1.2rem;
+    color: #f1c40f;
+    font-weight: bold;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+.hidden { display: none; }
 
-.btn:active {
-    transform: scale(0.95);
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 /* --- Zone de Jeu --- */
@@ -130,163 +199,85 @@ input[type="number"] {
     align-items: flex-end;
     width: 100%;
     padding: 20px 0;
-    perspective: 1000px; /* Ajoute de la profondeur */
+    perspective: 1000px;
 }
 
-/* --- Structure d'une Tour --- */
 .tower-container {
     position: relative;
     width: var(--tower-width);
-    height: 300px; /* Hauteur totale incluant la zone de clic */
+    height: 300px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
     cursor: pointer;
-    transition: transform 0.3s ease;
     border-radius: 10px;
-    padding-bottom: 10px;
+    transition: background 0.3s;
 }
 
-/* Effet Hover sur la Tour */
-.tower-container:hover {
-    background: rgba(255, 255, 255, 0.05); /* Légère surbrillance */
-}
+.tower-container:hover { background: var(--tower-hover); }
 
-.tower-container:hover .pole {
-    background-color: #fff;
-    box-shadow: 0 0 15px rgba(255,255,255,0.5);
-}
-
-/* La tige verticale */
 .pole {
     position: absolute;
-    bottom: 25px; /* Épaisseur du socle */
+    bottom: 25px;
     width: 12px;
     height: var(--tower-height);
-    background: linear-gradient(90deg, #b2bec3, #dfe6e9, #636e72);
+    background: var(--pole-color);
     border-radius: 10px 10px 0 0;
     z-index: 0;
-    transition: background 0.3s, box-shadow 0.3s;
 }
 
-/* Conteneur des disques */
+/* Petit ajustement pour la classe .base afin d'utiliser la variable d'ombre */
+.base {
+    width: 100%;
+    height: 25px;
+    background: var(--base-color);
+    border-radius: 10px;
+    z-index: 2;
+    box-shadow: 0 5px 15px var(--base-shadow); /* Utilise la variable maintenant */
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
 .disks-wrapper {
     height: var(--tower-height);
     width: 100%;
     display: flex;
     flex-direction: column-reverse;
     align-items: center;
-    justify-content: flex-start;
     z-index: 1;
-    margin-bottom: 5px; /* Petit espace au dessus du socle */
+    margin-bottom: 5px;
 }
 
-/* Le socle */
-.base {
-    width: 100%;
-    height: 25px;
-    background: linear-gradient(to bottom, #636e72, #2d3436);
-    border-radius: 10px;
-    z-index: 2;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-    border-top: 1px solid rgba(255,255,255,0.2);
-}
-
-/* --- Les Anneaux (Style Amélioré) --- */
+/* --- Anneaux et Animations --- */
 .disk {
     height: 30px;
-    border-radius: 15px; /* Forme de pilule */
-    /* On garde la couleur de fond JS, mais on ajoute un dégradé par dessus */
-    background-image: linear-gradient(
-        to bottom, 
-        rgba(255,255,255,0.3) 0%, 
-        rgba(255,255,255,0) 20%, 
-        rgba(0,0,0,0.1) 80%, 
-        rgba(0,0,0,0.3) 100%
-    );
+    border-radius: 15px;
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(0,0,0,0.2));
     border: 1px solid rgba(0,0,0,0.1);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Effet rebond */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     position: relative;
+    /* Animation fluide lors de l'arrivée dans le DOM */
+    animation: diskLand 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Petit reflet brillant sur le dessus de l'anneau */
-.disk::after {
-    content: '';
-    position: absolute;
-    top: 5px;
-    left: 10%;
-    width: 80%;
-    height: 3px;
-    background: rgba(255,255,255,0.4);
-    border-radius: 2px;
+@keyframes diskLand {
+    0% { transform: translateY(-50px) scale(0.9); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
-/* État Sélectionné */
 .disk.selected {
-    transform: translateY(-20px) scale(1.05); /* Monte plus haut et grossit un peu */
-    box-shadow: 0 15px 25px rgba(0,0,0,0.4);
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    z-index: 10; /* Passe devant tout le reste */
-    filter: brightness(1.2); /* Devient plus lumineux */
+    transform: translateY(-20px) scale(1.05);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    z-index: 10;
+    animation: none; /* Pas d'animation d'atterrissage quand on le tient */
+    transition: transform 0.2s ease;
 }
 
-/* --- Responsive Design --- */
-
+/* Mobile Responsive */
 @media (max-width: 768px) {
-    :root {
-        --tower-width: 30%; /* Pourcentage au lieu de fixe */
-        --tower-height: 180px;
-    }
-    
-    .controls {
-        padding: 15px;
-    }
-    
-    .controls h1 {
-        font-size: 1.4rem;
-    }
-
-    .base {
-        height: 15px;
-        border-radius: 5px;
-    }
-
-    .disk {
-        height: 22px;
-    }
-    
-    /* Ajustement des largeurs d'anneaux pour mobile */
-    /* Note : Le JS calcule en pixels, mais comme le conteneur rétrécit, 
-       Flexbox/CSS gérera le débordement si nécessaire, 
-       mais idéalement les anneaux doivent rester plus petits que la tour. */
-}
-
-@media (max-width: 480px) {
-    .btn {
-        width: 100%; /* Bouton plein écran sur mobile */
-    }
-    
-    .game-area {
-        align-items: flex-end;
-    }
-}
-
-/* style.css */
-
-.btn-demo {
-    background: linear-gradient(45deg, #3498db, #8e44ad);
-    margin-left: 10px; /* Petit espace entre les boutons */
-}
-
-.btn-demo:hover {
-    box-shadow: 0 6px 20px rgba(142, 68, 173, 0.4);
-}
-
-/* Classe utilitaire pour désactiver les boutons pendant la démo */
-.disabled {
-    opacity: 0.6;
-    pointer-events: none;
-    filter: grayscale(100%);
+    :root { --tower-width: 30%; --tower-height: 180px; }
+    .controls { padding: 15px; }
+    .stat-value { font-size: 1.2rem; }
+    .button-group { width: 100%; justify-content: center; }
 }
