@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tours de Hanoï - Premium Edition</title>
+    <style>
+        :root {
+            /* Dark Mode (Default) */
+            --bg-gradient: linear-gradient(135deg, #02050e 0%, #1e3c72 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-highlight: rgba(255, 255, 255, 0.2);
+            --text-main: #e0e6ed;
+            --text-secondary: #a0aab5;
+            --tower-color: #8e9eab;
+            --tower-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --accent-color: #4facfe;
+            --success-color: #00f260;
+            --danger-color: #ff5e62;
+            --ring-base-hue: 210;
+        }
+
+        [data-theme="light"] {
+            /* Light Mode */
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-highlight: rgba(255, 255, 255, 0.8);
+            --text-main: #1e3c72;
+            --text-secondary: #4b6cb7;
+            --tower-color: #536976;
+            --tower-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --accent-color: #005bea;
+            --ring-base-hue: 200;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Container */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--tower-shadow);
+        }
+
+        /* Header */
+        header {
+            width: 90%;
+            max-width: 1000px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 1.5rem;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        .theme-toggle:hover { transform: rotate(15deg); }
+
+        /* Game Container */
+        .game-container {
+            width: 90%;
+            max-width: 1000px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Controls & Stats */
+        .controls-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        input[type="number"] {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 0.5rem;
+            border-radius: 8px;
+            width: 60px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        button {
+            background: var(--glass-highlight);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats-display {
+            display: flex;
+            gap: 2rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        /* Game Board */
+        .game-board {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 400px;
+            padding: 2rem 0;
+            position: relative;
+        }
+
+        .tower-container {
+            position: relative;
+            width: 30%;
+            height: 100%;
+            display: flex;
+            flex-direction: column-reverse; /* Stack from bottom */
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            border-radius: 10px;
+        }
+
+        .tower-container:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .tower-container.selected {
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+
+        /* The Pole */
+        .pole {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 90%;
+            background: linear-gradient(90deg, #333, #999, #333);
+            border-radius: 10px 10px 0 0;
+            z-index: 0;
+            box-shadow: inset 2px 0 5px rgba(0,0,0,0.5);
+        }
+        
+        [data-theme="light"] .pole {
+            background: linear-gradient(90deg, #888, #ddd, #888);
+        }
+
+        /* The Base */
+        .base {
+            position: absolute;
+            bottom: -10px;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, #222, #555, #222);
+            border-radius: 5px;
+            z-index: 0;
+        }
+        
+        [data-theme="light"] .base {
+            background: linear-gradient(90deg, #777, #ccc, #777);
+        }
+
+        /* Rings */
+        .ring {
+            z-index: 10;
+            height: 35px;
+            border-radius: 15px;
+            margin-bottom: 2px; /* Spacing between rings */
+            position: relative;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3), 
+                        inset 0 -5px 10px rgba(0,0,0,0.2),
+                        inset 0 2px 5px rgba(255,255,255,0.4);
+        }
+
+        .ring::after {
+            /* Hole effect */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px; /* Slightly wider than pole */
+            height: 100%;
+            background: rgba(0,0,0,0.2);
+            filter: blur(2px);
+        }
+
+        /* Ring Selection Animation */
+        .ring.selected-ring {
+            transform: translateY(-40px) scale(1.05);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.4), 
+                        0 0 15px var(--accent-color);
+        }
+
+        /* Win Overlay */
+        .win-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .win-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .win-card {
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            transform: scale(0.8);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .win-overlay.active .win-card {
+            transform: scale(1);
+        }
+
+        .win-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #f83600 0%, #f9d423 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .game-board {
+                height: 300px;
+            }
+            .ring {
+                height: 25px;
+            }
+            .controls-area {
+                flex-direction: column;
+            }
+            h1 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="glass-panel">
+        <h1>Tours de Hanoï</h1>
+        <button class="theme-toggle" id="themeBtn" aria-label="Changer de thème">🌙</button>
+    </header>
+
+    <div class="game-container glass-panel">
+        <div class="controls-area">
+            <div class="control-group">
+                <label for="ringCount">Anneaux:</label>
+                <input type="number" id="ringCount" min="3" max="8" value="4">
+            </div>
+            <div class="control-group">
+                <button id="startBtn">Démarrer</button>
+                <button id="resetBtn">Reset</button>
+            </div>
+            <div class="control-group">
+                <button id="autoSolveBtn">Démo Auto</button>
+                <button id="stopBtn" disabled style="background: var(--danger-color); color: white;">Stop</button>
+            </div>
+            
+            <div class="stats-display">
+                <div class="stat-item">
+                    <span class="stat-value" id="moveCount">0</span>
+                    <span class="stat-label">Coups</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="minMoves">15</span>
+                    <span class="stat-label">Objectif</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-board">
+            <div class="tower-container" data-tower="0">
+                <div class="pole"></div>
+                <div class="base"></div>
+                <!-- Rings will be injected here -->
+            </div>
+            <div class="tower-container" data-tower="1">
+                <div class="pole"></div>
+                <div class="base"></div>
+            </div>
+            <div class="tower-container" data-tower="2">
+                <div class="pole"></div>
+                <div class="base"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="win-overlay" id="winOverlay">
+        <div class="glass-panel win-card">
+            <h2 class="win-title">Victoire ! 🎉</h2>
+            <p>Vous avez maîtrisé les tours.</p>
+            <br>
+            <p id="finalScore"></p>
+            <br>
+            <button id="playAgainBtn">Rejouer</button>
+        </div>
+    </div>
+
+    <script>
+        class HanoiGame {
+            constructor() {
+                this.towers = [[], [], []];
+                this.selectedTower = null;
+                this.moveCount = 0;
+                this.numRings = 4;
+                this.isSolving = false;
+                this.abortController = null;
+                
+                // DOM Elements
+                this.towerEls = document.querySelectorAll('.tower-container');
+                this.ringCountInput = document.getElementById('ringCount');
+                this.startBtn = document.getElementById('startBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.autoSolveBtn = document.getElementById('autoSolveBtn');
+                this.stopBtn = document.getElementById('stopBtn');
+                this.moveCountEl = document.getElementById('moveCount');
+                this.minMovesEl = document.getElementById('minMoves');
+                this.winOverlay = document.getElementById('winOverlay');
+                this.playAgainBtn = document.getElementById('playAgainBtn');
+                this.themeBtn = document.getElementById('themeBtn');
+                this.finalScoreEl = document.getElementById('finalScore');
+
+                this.init();
+            }
+
+            init() {
+                // Event Listeners
+                this.startBtn.addEventListener('click', () => this.startGame());
+                this.resetBtn.addEventListener('click', () => this.startGame());
+                this.playAgainBtn.addEventListener('click', () => {
+                    this.winOverlay.classList.remove('active');
+                    this.startGame();
+                });
+                
+                this.towerEls.forEach((el, index) => {
+                    el.addEventListener('click', () => this.handleTowerClick(index));
+                });
+
+                this.autoSolveBtn.addEventListener('click', () => this.startAutoSolve());
+                this.stopBtn.addEventListener('click', () => this.stopAutoSolve());
+
+                this.themeBtn.addEventListener('click', () => this.toggleTheme());
+
+                // Load Theme
+                const savedTheme = localStorage.getItem('hanoi-theme') || 'dark';
+                this.setTheme(savedTheme);
+
+                // Initial Start
+                this.startGame();
+            }
+
+            startGame() {
+                this.stopAutoSolve();
+                this.numRings = parseInt(this.ringCountInput.value);
+                if (this.numRings < 3) this.numRings = 3;
+                if (this.numRings > 8) this.numRings = 8;
+                this.ringCountInput.value = this.numRings;
+
+                this.towers = [[], [], []];
+                this.moveCount = 0;
+                this.selectedTower = null;
+                this.updateStats();
+
+                // Fill first tower
+                for (let i = this.numRings; i >= 1; i--) {
+                    this.towers[0].push(i);
+                }
+
+                this.render();
+                this.winOverlay.classList.remove('active');
+            }
+
+            render() {
+                this.towerEls.forEach((towerEl, towerIndex) => {
+                    // Clear existing rings (keep pole and base)
+                    const existingRings = towerEl.querySelectorAll('.ring');
+                    existingRings.forEach(r => r.remove());
+
+                    // Render rings
+                    this.towers[towerIndex].forEach((size, index) => {
+                        const ring = document.createElement('div');
+                        ring.classList.add('ring');
+                        
+                        // Calculate width: 20% min + variable portion
+                        const widthPct = 25 + (size / this.numRings) * 70;
+                        ring.style.width = `${widthPct}%`;
+                        
+                        // Dynamic Color
+                        const hue = getComputedStyle(document.documentElement).getPropertyValue('--ring-base-hue').trim();
+                        const lightness = 60 - (size * 3); // Darker for larger rings
+                        ring.style.background = `linear-gradient(90deg, 
+                            hsl(${hue}, 70%, ${lightness - 10}%) 0%, 
+                            hsl(${hue}, 70%, ${lightness}%) 50%, 
+                            hsl(${hue}, 70%, ${lightness - 10}%) 100%)`;
+
+                        // Mark selected
+                        if (this.selectedTower === towerIndex && index === this.towers[towerIndex].length - 1) {
+                            ring.classList.add('selected-ring');
+                        }
+
+                        towerEl.appendChild(ring);
+                    });
+
+                    // Highlight selected tower
+                    if (this.selectedTower === towerIndex) {
+                        towerEl.classList.add('selected');
+                    } else {
+                        towerEl.classList.remove('selected');
+                    }
+                });
+            }
+
+            handleTowerClick(towerIndex) {
+                if (this.isSolving) return;
+
+                if (this.selectedTower === null) {
+                    // Select
+                    if (this.towers[towerIndex].length > 0) {
+                        this.selectedTower = towerIndex;
+                        this.render();
+                    }
+                } else {
+                    // Move or Deselect
+                    if (this.selectedTower === towerIndex) {
+                        this.selectedTower = null; // Deselect
+                        this.render();
+                    } else {
+                        this.attemptMove(this.selectedTower, towerIndex);
+                    }
+                }
+            }
+
+            attemptMove(fromIndex, toIndex) {
+                const ring = this.towers[fromIndex][this.towers[fromIndex].length - 1];
+                const targetTop = this.towers[toIndex].length > 0 
+                    ? this.towers[toIndex][this.towers[toIndex].length - 1] 
+                    : Infinity;
+
+                if (ring < targetTop) {
+                    // Valid Move
+                    this.towers[fromIndex].pop();
+                    this.towers[toIndex].push(ring);
+                    this.moveCount++;
+                    this.selectedTower = null;
+                    this.updateStats();
+                    this.render();
+                    this.checkWin();
+                } else {
+                    // Invalid Move
+                    this.shakeTower(toIndex);
+                    // Don't deselect, let user try again
+                }
+            }
+
+            shakeTower(index) {
+                const tower = this.towerEls[index];
+                tower.style.transform = 'translateX(5px)';
+                setTimeout(() => tower.style.transform = 'translateX(-5px)', 50);
+                setTimeout(() => tower.style.transform = 'translateX(5px)', 100);
+                setTimeout(() => tower.style.transform = 'translateX(0)', 150);
+            }
+
+            updateStats() {
+                this.moveCountEl.textContent = this.moveCount;
+                this.minMovesEl.textContent = Math.pow(2, this.numRings) - 1;
+            }
+
+            checkWin() {
+                if (this.towers[2].length === this.numRings) {
+                    this.finalScoreEl.textContent = `Terminé en ${this.moveCount} coups !`;
+                    setTimeout(() => {
+                        this.winOverlay.classList.add('active');
+                        this.confettiEffect();
+                    }, 300);
+                }
+            }
+
+            // --- Auto Solve Logic ---
+
+            async startAutoSolve() {
+                if (this.isSolving) return;
+                this.startGame(); // Reset first
+                this.isSolving = true;
+                this.autoSolveBtn.disabled = true;
+                this.stopBtn.disabled = false;
+                this.ringCountInput.disabled = true;
+                this.startBtn.disabled = true;
+                this.resetBtn.disabled = true;
+                
+                this.abortController = new AbortController();
+
+                try {
+                    await this.solveHanoi(this.numRings, 0, 2, 1, this.abortController.signal);
+                } catch (e) {
+                    if (e.name === 'AbortError') {
+                        console.log('Auto solve stopped');
+                    } else {
+                        console.error(e);
+                    }
+                } finally {
+                    this.isSolving = false;
+                    this.autoSolveBtn.disabled = false;
+                    this.stopBtn.disabled = true;
+                    this.ringCountInput.disabled = false;
+                    this.startBtn.disabled = false;
+                    this.resetBtn.disabled = false;
+                }
+            }
+
+            stopAutoSolve() {
+                if (this.abortController) {
+                    this.abortController.abort();
+                }
+            }
+
+            async solveHanoi(n, source, target, auxiliary, signal) {
+                if (signal.aborted) throw new DOMException('Aborted', 'AbortError');
+                if (n === 0) return;
+
+                // Move n-1 from source to auxiliary
+                await this.solveHanoi(n - 1, source, auxiliary, target, signal);
+
+                // Move nth ring from source to target
+                if (signal.aborted) throw new DOMException('Aborted', 'AbortError');
+                
+                // Visual Move
+                this.selectedTower = source;
+                this.render();
+                await this.delay(300); 
+                
+                this.attemptMove(source, target);
+                await this.delay(300);
+
+                // Move n-1 from auxiliary to target
+                await this.solveHanoi(n - 1, auxiliary, target, source, signal);
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            // --- Theme & Polish ---
+
+            toggleTheme() {
+                const current = document.documentElement.getAttribute('data-theme');
+                const newTheme = current === 'light' ? 'dark' : 'light';
+                this.setTheme(newTheme);
+            }
+
+            setTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('hanoi-theme', theme);
+                this.themeBtn.textContent = theme === 'light' ? '☀️' : '🌙';
+                this.render(); // Re-render to update gradients if needed
+            }
+
+            confettiEffect() {
+                // Simple CSS/JS confetti could go here, 
+                // but for single file simplicity we rely on the festive overlay.
+            }
+        }
+
+        // Initialize Game
+        window.addEventListener('DOMContentLoaded', () => {
+            new HanoiGame();
+        });
+    </script>
+</body>
+</html>

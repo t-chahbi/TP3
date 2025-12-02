@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tours de Hanoï Premium</title>
+    <style>
+        /* === CSS VARIABLES POUR LES THÈMES === */
+        :root {
+            --bg-from: #02050e;
+            --bg-to: #1e3c72;
+            --text-primary: #e0f2fe;
+            --text-secondary: #94a3b8;
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(148, 163, 184, 0.2);
+            --glass-shadow: rgba(0, 0, 0, 0.5);
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --tower-base: linear-gradient(145deg, #1e293b, #0f172a);
+            --tower-rod: linear-gradient(180deg, #475569, #1e293b);
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        [data-theme="light"] {
+            --bg-from: #ffffff;
+            --bg-to: #dbeafe;
+            --text-primary: #1e3a8a;
+            --text-secondary: #475569;
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(148, 163, 184, 0.3);
+            --glass-shadow: rgba(0, 0, 0, 0.1);
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --tower-base: linear-gradient(145deg, #e2e8f0, #cbd5e1);
+            --tower-rod: linear-gradient(180deg, #94a3b8, #64748b);
+            --success: #059669;
+            --warning: #d97706;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--bg-from), var(--bg-to));
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 20px;
+            transition: background 0.5s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        /* === CONTAINER PRINCIPAL === */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* === HEADER === */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px var(--glass-shadow);
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+        }
+
+        /* === CONTROLS PANEL === */
+        .controls {
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px var(--glass-shadow);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        input[type="number"] {
+            width: 80px;
+            padding: 10px 15px;
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-reset {
+            background: var(--warning);
+        }
+
+        .btn-reset:hover {
+            background: #ea580c;
+        }
+
+        .btn-demo {
+            background: var(--success);
+        }
+
+        .btn-demo:hover {
+            background: #059669;
+        }
+
+        .btn-theme {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 10px 20px;
+        }
+
+        .btn-theme:hover {
+            background: var(--glass-border);
+        }
+
+        /* === STATS === */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px var(--glass-shadow);
+            min-width: 150px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* === GAME BOARD === */
+        .game-board {
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px 20px;
+            box-shadow: 0 8px 32px var(--glass-shadow);
+            margin-bottom: 20px;
+        }
+
+        .towers-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            gap: 20px;
+            min-height: 400px;
+        }
+
+        .tower {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            max-width: 250px;
+        }
+
+        .tower-label {
+            position: absolute;
+            top: -30px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .tower-rod {
+            width: 12px;
+            height: 300px;
+            background: var(--tower-rod);
+            border-radius: 6px;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            margin: 0 auto;
+        }
+
+        .tower-base {
+            width: 100%;
+            height: 20px;
+            background: var(--tower-base);
+            border-radius: 10px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .disks-stack {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            gap: 2px;
+            width: 100%;
+        }
+
+        .disk {
+            height: 30px;
+            border-radius: 15px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .disk:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .disk.selected {
+            transform: translateY(-40px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.6);
+            filter: brightness(1.3);
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            to {
+                transform: translateY(-45px) scale(1.08);
+            }
+        }
+
+        .disk.landing {
+            animation: land 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes land {
+            0% {
+                transform: translateY(-100px) scale(1.1);
+            }
+
+            50% {
+                transform: translateY(5px) scale(0.95);
+            }
+
+            100% {
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* === VICTORY MESSAGE === */
+        .victory-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            backdrop-filter: blur(20px);
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 50px;
+            text-align: center;
+            box-shadow: 0 20px 60px var(--glass-shadow);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .victory-message.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .victory-message h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--success), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .victory-message p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .towers-container {
+                flex-direction: column;
+                align-items: center;
+                min-height: auto;
+                gap: 40px;
+            }
+
+            .tower {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .tower-rod {
+                height: 200px;
+            }
+
+            .disks-stack {
+                bottom: 20px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* === OVERLAY === */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+    </style>
+</head>
+
+<body data-theme="dark">
+    <div class="container">
+        <header>
+            <h1>🏛️ Tours de Hanoï Premium</h1>
+            <p class="subtitle">Résolvez le puzzle légendaire avec style</p>
+        </header>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="diskCount">Nombre d'anneaux :</label>
+                <input type="number" id="diskCount" min="3" max="8" value="5">
+            </div>
+            <button id="startBtn">🎮 Démarrer</button>
+            <button id="resetBtn" class="btn-reset">🔄 Reset</button>
+            <button id="demoBtn" class="btn-demo">🤖 Mode Démo</button>
+            <button id="themeBtn" class="btn-theme">🌓 Thème</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Coups</div>
+                <div class="stat-value" id="movesCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Objectif</div>
+                <div class="stat-value" id="minMoves">31</div>
+            </div>
+        </div>
+
+        <div class="game-board">
+            <div class="towers-container">
+                <div class="tower" data-tower="0">
+                    <div class="tower-label">Tour A</div>
+                    <div class="tower-rod">
+                        <div class="disks-stack"></div>
+                    </div>
+                    <div class="tower-base"></div>
+                </div>
+                <div class="tower" data-tower="1">
+                    <div class="tower-label">Tour B</div>
+                    <div class="tower-rod">
+                        <div class="disks-stack"></div>
+                    </div>
+                    <div class="tower-base"></div>
+                </div>
+                <div class="tower" data-tower="2">
+                    <div class="tower-label">Tour C</div>
+                    <div class="tower-rod">
+                        <div class="disks-stack"></div>
+                    </div>
+                    <div class="tower-base"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="victory-message" id="victoryMsg">
+        <h2>🎉 Victoire !</h2>
+        <p>Félicitations ! Vous avez résolu le puzzle.</p>
+        <button onclick="closeVictory()">Continuer</button>
+    </div>
+
+    <script>
+        // === ÉTAT DU JEU ===
+        let towers = [[], [], []];
+        let selectedDisk = null;
+        let selectedTower = null;
+        let moves = 0;
+        let diskCount = 5;
+        let isDemo = false;
+
+        // === ÉLÉMENTS DOM ===
+        const diskCountInput = document.getElementById('diskCount');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const demoBtn = document.getElementById('demoBtn');
+        const themeBtn = document.getElementById('themeBtn');
+        const movesDisplay = document.getElementById('movesCount');
+        const minMovesDisplay = document.getElementById('minMoves');
+        const victoryMsg = document.getElementById('victoryMsg');
+        const overlay = document.getElementById('overlay');
+
+        // === INITIALISATION ===
+        function init() {
+            diskCount = parseInt(diskCountInput.value);
+            if (diskCount < 3) diskCount = 3;
+            if (diskCount > 8) diskCount = 8;
+            diskCountInput.value = diskCount;
+
+            // Réinitialiser l'état
+            towers = [[], [], []];
+            selectedDisk = null;
+            selectedTower = null;
+            moves = 0;
+            isDemo = false;
+
+            // Créer les anneaux sur la première tour
+            for (let i = diskCount; i >= 1; i--) {
+                towers[0].push(i);
+            }
+
+            // Calculer le nombre minimum de coups
+            const minMoves = Math.pow(2, diskCount) - 1;
+            minMovesDisplay.textContent = minMoves;
+            movesDisplay.textContent = '0';
+
+            render();
+        }
+
+        // === RENDU VISUEL ===
+        function render() {
+            // Pour chaque tour
+            document.querySelectorAll('.tower').forEach((towerEl, towerIndex) => {
+                const stackEl = towerEl.querySelector('.disks-stack');
+                stackEl.innerHTML = '';
+
+                // Dessiner les anneaux
+                towers[towerIndex].forEach(diskSize => {
+                    const diskEl = document.createElement('div');
+                    diskEl.className = 'disk';
+                    diskEl.dataset.size = diskSize;
+
+                    // Largeur proportionnelle
+                    const maxWidth = 200;
+                    const minWidth = 60;
+                    const width = minWidth + (diskSize / diskCount) * (maxWidth - minWidth);
+                    diskEl.style.width = width + 'px';
+
+                    // Couleur dynamique avec HSL
+                    const hue = (diskSize / diskCount) * 280;
+                    const gradient = `linear-gradient(135deg, 
+                        hsl(${hue}, 70%, 60%), 
+                        hsl(${hue}, 70%, 45%))`;
+                    diskEl.style.background = gradient;
+
+                    // Événement de clic
+                    diskEl.addEventListener('click', () => handleDiskClick(towerIndex, diskSize));
+
+                    stackEl.appendChild(diskEl);
+                });
+            });
+
+            // Mettre en évidence le disque sélectionné
+            if (selectedDisk !== null && selectedTower !== null) {
+                const towerEl = document.querySelector(`[data-tower="${selectedTower}"]`);
+                const diskEl = towerEl.querySelector(`[data-size="${selectedDisk}"]`);
+                if (diskEl) diskEl.classList.add('selected');
+            }
+        }
+
+        // === GESTION DES CLICS ===
+        function handleDiskClick(towerIndex, diskSize) {
+            if (isDemo) return; // Pas d'interaction pendant la démo
+
+            // Premier clic : sélectionner un disque
+            if (selectedDisk === null) {
+                // Vérifier que c'est le disque du dessus
+                const topDisk = towers[towerIndex][towers[towerIndex].length - 1];
+                if (topDisk === diskSize) {
+                    selectedDisk = diskSize;
+                    selectedTower = towerIndex;
+                    render();
+                }
+            }
+            // Second clic : déplacer le disque
+            else {
+                if (canMove(selectedTower, towerIndex)) {
+                    moveDisk(selectedTower, towerIndex, true);
+                } else {
+                    alert('❌ Mouvement invalide ! Vous ne pouvez pas poser un anneau sur un plus petit.');
+                }
+                selectedDisk = null;
+                selectedTower = null;
+                render();
+            }
+        }
+
+        // === VÉRIFICATION DE MOUVEMENT ===
+        function canMove(from, to) {
+            if (towers[from].length === 0) return false;
+            if (towers[to].length === 0) return true;
+
+            const movingDisk = towers[from][towers[from].length - 1];
+            const targetDisk = towers[to][towers[to].length - 1];
+
+            return movingDisk < targetDisk;
+        }
+
+        // === DÉPLACEMENT D'UN DISQUE ===
+        function moveDisk(from, to, animate = false) {
+            const disk = towers[from].pop();
+            towers[to].push(disk);
+            moves++;
+            movesDisplay.textContent = moves;
+
+            render();
+
+            // Animation d'atterrissage
+            if (animate) {
+                const towerEl = document.querySelector(`[data-tower="${to}"]`);
+                const diskEl = towerEl.querySelector(`[data-size="${disk}"]`);
+                if (diskEl) {
+                    diskEl.classList.add('landing');
+                    setTimeout(() => diskEl.classList.remove('landing'), 500);
+                }
+            }
+
+            // Vérifier la victoire
+            if (towers[2].length === diskCount) {
+                setTimeout(showVictory, 500);
+            }
+        }
+
+        // === AFFICHER LE MESSAGE DE VICTOIRE ===
+        function showVictory() {
+            overlay.classList.add('show');
+            victoryMsg.classList.add('show');
+            victoryMsg.querySelector('p').textContent =
+                `Félicitations ! Vous avez résolu le puzzle en ${moves} coups (Objectif : ${Math.pow(2, diskCount) - 1}).`;
+        }
+
+        // === FERMER LE MESSAGE DE VICTOIRE ===
+        function closeVictory() {
+            overlay.classList.remove('show');
+            victoryMsg.classList.remove('show');
+        }
+
+        // === MODE DÉMO (RÉSOLUTION AUTOMATIQUE) ===
+        async function runDemo() {
+            if (isDemo) {
+                // Arrêter la démo
+                isDemo = false;
+                demoBtn.textContent = '🤖 Mode Démo';
+                return;
+            }
+
+            // Réinitialiser et démarrer
+            init();
+            isDemo = true;
+            demoBtn.textContent = '⏸️ Arrêter Démo';
+            startBtn.disabled = true;
+            resetBtn.disabled = true;
+
+            // Lancer l'algorithme récursif
+            await solveHanoi(diskCount, 0, 2, 1);
+
+            isDemo = false;
+            demoBtn.textContent = '🤖 Mode Démo';
+            startBtn.disabled = false;
+            resetBtn.disabled = false;
+        }
+
+        // === ALGORITHME RÉCURSIF DES TOURS DE HANOÏ ===
+        async function solveHanoi(n, from, to, aux) {
+            if (!isDemo) return; // Arrêt d'urgence
+
+            if (n === 1) {
+                moveDisk(from, to, true);
+                await sleep(500);
+                return;
+            }
+
+            await solveHanoi(n - 1, from, aux, to);
+            moveDisk(from, to, true);
+            await sleep(500);
+            await solveHanoi(n - 1, aux, to, from);
+        }
+
+        // === FONCTION DE DÉLAI ===
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // === GESTION DU THÈME ===
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // === CHARGER LE THÈME DEPUIS LE LOCALSTORAGE ===
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+            }
+        }
+
+        // === EVENT LISTENERS ===
+        startBtn.addEventListener('click', init);
+        resetBtn.addEventListener('click', init);
+        demoBtn.addEventListener('click', runDemo);
+        themeBtn.addEventListener('click', toggleTheme);
+        overlay.addEventListener('click', closeVictory);
+
+        // === INITIALISATION AU CHARGEMENT ===
+        loadTheme();
+        init();
+    </script>
+</body>
+
+</html>
