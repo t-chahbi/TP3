@@ -272,3 +272,21 @@ input[type="number"] {
         align-items: flex-end;
     }
 }
+
+/* style.css */
+
+.btn-demo {
+    background: linear-gradient(45deg, #3498db, #8e44ad);
+    margin-left: 10px; /* Petit espace entre les boutons */
+}
+
+.btn-demo:hover {
+    box-shadow: 0 6px 20px rgba(142, 68, 173, 0.4);
+}
+
+/* Classe utilitaire pour désactiver les boutons pendant la démo */
+.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    filter: grayscale(100%);
+}
